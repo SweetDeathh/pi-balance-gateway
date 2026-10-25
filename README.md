@@ -1,48 +1,52 @@
 # pi-balance-gateway
 
-**简体中文** | [English](README.en.md)
+English | [简体中文](README.zh-CN.md)
 
-在 pi 的底部栏显示 API 中转站的钱包余额，**支持同时显示多个账号**。
+> 中文说明：[README.zh-CN.md](README.zh-CN.md)
 
-只要中转站提供 `GET {base}/v1/usage` 接口就能用。不支持这个接口的站点会被自动跳过，不影响其他账号。
+Show API relay wallet balances in the pi footer, for **several accounts at once**.
+
+Works with any relay that exposes `GET {base}/v1/usage` and returns a `balance`
+field. Relays that do not serve that endpoint simply fail the probe and are
+skipped, without affecting the others.
 
 ---
 
-## 效果
+## What it looks like
 
-**单个账号**，底部栏显示：
+**One account:**
 
 ```
 余额 $47.35
 ```
 
-**多个账号**，一行并排：
+**Several accounts**, side by side on one line:
 
 ```
-主号 $47.35 · 备号 $0.09 · 小号 $24.25
+main $47.35 · backup $0.09 · alt $24.25
 ```
 
-某个账号查询失败时只影响它自己：
+A failing account only affects itself:
 
 ```
-主号 $47.35 · 备号 ?
+main $47.35 · backup ?
 ```
 
 ---
 
-## 安装
+## Install
 
 ```bash
 pi install npm:pi-balance-gateway
 ```
 
-想先试用一次、不写进配置：
+Try it once without writing to settings:
 
 ```bash
 pi -e npm:pi-balance-gateway
 ```
 
-也可以从 git 安装（方便先看源码）：
+Or install from git (easier to read the source first):
 
 ```bash
 pi install git:github.com/SweetDeathh/pi-balance-gateway
@@ -50,104 +54,113 @@ pi install git:github.com/SweetDeathh/pi-balance-gateway
 
 ---
 
-## 开箱即用，不用配置
+## Works out of the box — no configuration
 
-扩展直接读 `~/.pi/agent/models.json` 里你已经配好的 `baseUrl` 和 `apiKey`。
+The extension reads the `baseUrl` and `apiKey` you already configured in
+`~/.pi/agent/models.json`.
 
-**你已经为 pi 配好的东西，它直接复用，不用再填一遍 key。**
+**If pi can talk to a provider, that provider is already here — you never retype a key.**
 
-首次启动时自动完成：
+On first start it automatically:
 
-1. 扫描所有带 `baseUrl` + `apiKey` 的 provider
-2. 并发探测 `GET {base}/v1/usage`
-3. 只保留有响应的，同域自动去重（`example.com` 与 `www.example.com` 视为同一个钱包）
-4. 结果缓存到 `~/.pi/agent/balance.json`
+1. scans every provider that has a `baseUrl` + `apiKey`
+2. probes `GET {base}/v1/usage` for each, in parallel
+3. keeps only the ones that answer, collapsing providers that share a host
+   (`example.com` and `www.example.com` count as the same wallet)
+4. caches the result to `~/.pi/agent/balance.json`
 
-全程无弹窗、不用改任何文件。
+No prompts, no files to edit.
 
 ---
 
-## 选择显示哪些账号
+## Choose which accounts to show
 
 ```
 /balance setup
 ```
 
-会先探测一遍，然后给出勾选列表，按回车切换，选「保存并关闭」生效：
+It probes first, then shows a tick-list. Press enter to toggle, pick
+"save and close" when done:
 
 ```
-勾选要显示余额的账号（可反复切换，不可用的会显示 ?）
-> [x] 主号        $47.35
-  [x] 备号        $0.09
-  [x] 小号        $24.25
-  [ ] 某个站点    ✗ 返回非 JSON (404)
-  ── 保存并关闭 ──
+Pick the accounts to show (toggle repeatedly; unusable ones show ?)
+> [x] main        $47.35
+  [x] backup      $0.09
+  [x] alt         $24.25
+  [ ] some-site   ✗ not JSON (404)
+  ── save and close ──
 ```
 
-保存后立即按新选择刷新底部栏。
+The footer refreshes with your new selection immediately.
 
 ---
 
-## 命令
+## Commands
 
-| 命令 | 作用 |
+| Command | Purpose |
 |---|---|
-| `/balance` | 报告全部账号（含最近用量、模型 Top 3） |
-| `/balance setup` | 交互式勾选要显示的账号 |
-| `/balance probe` | 重新探测，保留所有可用账号 |
-| `/balance list` | 查看当前选择 |
-| `/balance add [名称]` | 添加账号；不给名字时弹出选择器 |
-| `/balance remove <名称>` | 移除账号 |
+| `/balance` | Report every account (recent usage, model top 3) |
+| `/balance setup` | Interactive tick-list of accounts to show |
+| `/balance probe` | Re-probe and keep every responsive account |
+| `/balance list` | Show the current selection |
+| `/balance add [name]` | Add one; shows a picker when no name is given |
+| `/balance remove <name>` | Remove one |
 
 ---
 
-## 给模型用的工具
+## Tool for the model
 
-注册 `check_balance` 工具，你问「余额还有多少」时模型可以主动调用。
+Registers `check_balance`, so the model can answer "how much balance is left"
+on its own.
 
-返回结构化的 `details.accounts[]`，并对 `daily_usage` / `model_stats` 各裁剪到最近 5 条，避免把上下文刷爆。
+It returns a structured `details.accounts[]` and trims `daily_usage` /
+`model_stats` to the last 5 entries each, so a long history cannot flood the
+context window.
 
 ---
 
-## 环境变量
+## Environment variables
 
-| 变量 | 作用 |
+| Variable | Purpose |
 |---|---|
-| `PI_BALANCE_API_KEY` | 直接用这个 key，跳过 `models.json` |
-| `PI_BALANCE_BASE_URL` | 配合上面那个 key 的网关地址（两者需同时设置） |
-| `PI_BALANCE_PROVIDERS` | 逗号分隔的 provider 名，覆盖 `balance.json` |
-| `PI_BALANCE_LOW` | 低余额阈值，默认 `5` |
+| `PI_BALANCE_API_KEY` | Use this key instead of `models.json` |
+| `PI_BALANCE_BASE_URL` | Gateway base URL for that key (both are required) |
+| `PI_BALANCE_PROVIDERS` | Comma-separated provider names, overrides `balance.json` |
+| `PI_BALANCE_LOW` | Low-balance threshold, default `5` |
 
 ---
 
-## 刷新策略
+## Refresh policy
 
-- 正常每 5 分钟一次
-- **最低**余额低于阈值时改为每分钟一次
-- 会话启动时查一次，每轮对话结束后按需刷新
-- 多账号并行查询，耗时取最慢的一个，不是累加
+- Every 5 minutes normally
+- Every minute once the **lowest** balance drops below the threshold
+- Once at session start, then on demand after each turn
+- Accounts are queried in parallel, so the cost is the slowest one, not the sum
 
 ---
 
-## 数据与隐私
+## Data and privacy
 
-`~/.pi/agent/balance.json` 只记录要显示哪些账号，**不含任何密钥**：
+`~/.pi/agent/balance.json` records only which accounts to show. It contains
+**no secrets**:
 
 ```json
 {
   "providers": [
-    { "name": "某个 provider 名", "label": "主号" },
-    { "name": "另一个 provider 名", "label": "备号" }
+    { "name": "some-provider", "label": "main" },
+    { "name": "another-provider", "label": "backup" }
   ]
 }
 ```
 
-`name` 必须是 `models.json` 里已有的 provider 名；`label` 是底部栏短名，可省略。
+`name` must match a provider already present in `models.json`; `label` is the
+short footer name and is optional.
 
-密钥始终只存在于 `models.json`，本扩展**不复制、不写出、不上传**。查询只发往你自己配置的网关地址。
+Keys stay in `models.json`. This extension **never copies, writes out, or
+uploads them**. Queries go only to the gateway URLs you configured yourself.
 
 ---
 
-## 许可
+## License
 
 MIT
