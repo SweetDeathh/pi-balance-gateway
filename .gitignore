@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output
+*.tgz
+dist/
+.next/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local state — never commit account selection or keys
+balance.json
+.env
+*.local
+
+# Test / scratch
+.versions/
+.cfg-backup/
+.install-test-backup/

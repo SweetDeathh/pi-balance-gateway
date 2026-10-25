@@ -1,0 +1,46 @@
+{
+  "name": "pi-balance-gateway",
+  "version": "0.1.0",
+  "description": "Multi-account API gateway wallet balance in the pi footer. 在 pi 底部栏显示多个中转站账号的钱包余额，支持任何返回 balance 字段的 GET /v1/usage 接口。复用 models.json 里已有的 API key，无需额外配置。",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "balance",
+    "wallet",
+    "quota",
+    "usage",
+    "billing",
+    "api-gateway",
+    "relay",
+    "余额",
+    "中转站"
+  ],
+  "license": "MIT",
+  "author": "SweetDeathh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SweetDeathh/pi-balance-gateway.git"
+  },
+  "homepage": "https://github.com/SweetDeathh/pi-balance-gateway#readme",
+  "bugs": {
+    "url": "https://github.com/SweetDeathh/pi-balance-gateway/issues"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/balance.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}
