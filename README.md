@@ -17,7 +17,7 @@ skipped, without affecting the others.
 **One account:**
 
 ```
-余额 $47.35
+main $47.35
 ```
 
 **Several accounts**, side by side on one line:

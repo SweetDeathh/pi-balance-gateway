@@ -238,17 +238,9 @@ function usableTargets(detected: Detected[]): Target[] {
   return out;
 }
 
-/** Footer line. One account keeps the old wording; several are joined by " · ". */
+/** Footer line: always `label $amount`, so it reads the same in any locale. */
 function formatStatusLine(results: AccountResult[]): string {
-  if (results.length === 0) return "余额: 未查询";
-
-  if (results.length === 1) {
-    const only = results[0];
-    if (!only.ok) return "余额: 查询失败";
-    return only.balance === undefined
-      ? "余额 未知"
-      : `余额 ${formatMoney(only.balance, only.payload.unit)}`;
-  }
+  if (results.length === 0) return "balance: —";
 
   return results
     .map((r) =>
@@ -333,7 +325,7 @@ function trimPayload(payload: UsagePayload): UsagePayload {
 }
 
 export default function balanceExtension(pi: ExtensionAPI) {
-  let lastStatusLine = "余额: 未查询";
+  let lastStatusLine = "balance: —";
   let lastQueryAt = 0;
   let lowestBalance: number | undefined;
   let refreshTimer: ReturnType<typeof setTimeout> | undefined;
@@ -442,7 +434,7 @@ export default function balanceExtension(pi: ExtensionAPI) {
       }
       return results;
     } catch (error) {
-      lastStatusLine = "余额: 查询失败";
+      lastStatusLine = "balance: —";
       ctx.ui.setStatus("balance", lastStatusLine);
       if (notify) ctx.ui.notify(error instanceof Error ? error.message : String(error), "error");
       scheduleRefresh();
