@@ -1,6 +1,6 @@
 {
   "name": "pi-balance-gateway",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multi-account API gateway wallet balance in the pi footer. 在 pi 底部栏显示多个中转站账号的钱包余额，支持任何返回 balance 字段的 GET /v1/usage 接口。复用 models.json 里已有的 API key，无需额外配置。",
   "type": "module",
   "keywords": [
