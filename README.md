@@ -1,5 +1,7 @@
 # pi-balance-gateway
 
+**简体中文** | [English](README.en.md)
+
 在 pi 的底部栏显示 API 中转站的钱包余额，**支持同时显示多个账号**。
 
 只要中转站提供 `GET {base}/v1/usage` 接口就能用。不支持这个接口的站点会被自动跳过，不影响其他账号。
@@ -143,27 +145,6 @@ pi install git:github.com/SweetDeathh/pi-balance-gateway
 `name` 必须是 `models.json` 里已有的 provider 名；`label` 是底部栏短名，可省略。
 
 密钥始终只存在于 `models.json`，本扩展**不复制、不写出、不上传**。查询只发往你自己配置的网关地址。
-
----
-
-## English
-
-Multi-account wallet balance for the pi footer. Works with any relay that
-exposes `GET {base}/v1/usage` and returns a `balance` field.
-
-It reuses the `baseUrl` + `apiKey` already present in `~/.pi/agent/models.json`,
-probes each provider once, and caches the responsive ones. Pick what to show with
-`/balance setup` — a tick-list, no JSON editing.
-
-```bash
-pi install npm:pi-balance-gateway
-```
-
-Commands: `/balance`, `/balance setup`, `/balance probe`, `/balance list`,
-`/balance add [name]`, `/balance remove <name>`. Also registers a `check_balance`
-tool for the model.
-
-No secrets are copied or transmitted: the selection file holds provider names only.
 
 ---
 
