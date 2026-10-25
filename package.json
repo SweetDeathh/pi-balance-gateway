@@ -43,5 +43,13 @@
   ],
   "engines": {
     "node": ">=20"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
   }
 }
